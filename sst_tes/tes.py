@@ -42,7 +42,7 @@ class TESBase(Device, RPCInterface):
         """
         Starts file writing. If self.setFilenamePattern,
         path should be something that can be formatted by datetime.strftime,
-        i.e., /nsls2/data/sst1/legacy/ucal/raw/%Y/%m/%d
+        i.e., /nsls2/data/sst/legacy/ucal/raw/%Y/%m/%d
         This should certainly be the default, and file_start should not generally be called
         with arguments
         """
