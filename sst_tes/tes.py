@@ -56,8 +56,8 @@ class TESBase(Device, RPCInterface):
             msg = self.rpc.commCheck()
         except RPCException:
             msg = {'success': False, 'response': 'Disconnected'}
-        self.connected = msg['success']
-        self.commStatus = msg['response']
+        self._connected = msg['success']
+        self._commStatus = msg['response']
 
     @raiseOnFailure
     def _file_start(self, path=None, force=False):
