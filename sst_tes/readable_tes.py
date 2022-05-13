@@ -9,7 +9,8 @@ from os.path import join, relpath
 from .tes_signals import *
 from .rpc import RPCInterface
 from event_model import compose_resource
-from .tes import TESBase
+from .tes import TESBase, raiseOnFailure
+
 
 class TESROIBase(Device, RPCInterface):
     roi_lims = Component(RPCSignalPairAuto, method="roi", kind='config')
