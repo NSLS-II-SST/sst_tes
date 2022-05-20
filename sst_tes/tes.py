@@ -17,7 +17,6 @@ class TESException(Exception):
 def raiseOnFailure(f):
     def _inner(*args, **kwargs):
         response = f(*args, **kwargs)
-        print(f"Raise on failure response {response}")
         if not response['success']:
             raise TESException(f"RPC failed with message {response['response']}")
         return response
@@ -85,7 +84,6 @@ class TESBase(Device, RPCInterface):
 
     @raiseOnFailure
     def _file_end(self):
-        print("In tes file end")
         return self.rpc.file_end()
 
     @raiseOnFailure
