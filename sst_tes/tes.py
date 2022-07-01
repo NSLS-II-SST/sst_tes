@@ -10,13 +10,17 @@ from .tes_signals import *
 from .rpc import RPCInterface, RPCException
 from functools import wraps
 
+class TESException(Exception):
+    pass
 
-@wraps
+
 def raiseOnFailure(f):
     def _inner(*args, **kwargs):
         response = f(*args, **kwargs)
         if not response['success']:
-            raise RPCException(f"RPC failed with message {response['response']}")
+            raise TESException(f"RPC failed with message {response['response']}")
+        return response
+    return _inner
 
 
 class TESBase(Device, RPCInterface):
@@ -56,8 +60,8 @@ class TESBase(Device, RPCInterface):
             msg = self.rpc.commCheck()
         except RPCException:
             msg = {'success': False, 'response': 'Disconnected'}
-        self.connected = msg['success']
-        self.commStatus = msg['response']
+        self._connected = msg['success']
+        self._commStatus = msg['response']
 
     @raiseOnFailure
     def _file_start(self, path=None, force=False):
@@ -78,9 +82,11 @@ class TESBase(Device, RPCInterface):
             print("TES already has file open, not forcing!")
             return {"success": True, "response": "File already open"}
 
+    @raiseOnFailure
     def _file_end(self):
         return self.rpc.file_end()
 
+    @raiseOnFailure
     def _calibration_start(self):
         if self.scanexfiltrator is not None:
             scaninfo = self.scanexfiltrator.get_scan_start_info()
@@ -94,8 +100,9 @@ class TESBase(Device, RPCInterface):
         start_energy = scaninfo.get("start_energy", -1)
         routine = 'simulated_source'
         if self.verbose: print(f"start calibration scan {scan_num}")
-        self.rpc.calibration_start(var_name, var_unit, scan_num, sample_id, sample_name, routine)
+        return self.rpc.calibration_start(var_name, var_unit, scan_num, sample_id, sample_name, routine)
 
+    @raiseOnFailure
     def _scan_start(self):
         if self.scanexfiltrator is not None:
             scaninfo = self.scanexfiltrator.get_scan_start_info()
@@ -108,12 +115,14 @@ class TESBase(Device, RPCInterface):
         start_energy = scaninfo.get("start_energy", -1)
         if self.verbose: print(f"start scan {scan_num}")
         msg = self.rpc.scan_start(var_name, var_unit, sample_id, sample_name, extra={"start_energy": start_energy})
-        
-        
+        return msg
+
+    @raiseOnFailure
     def _scan_end(self):
         msg = self.rpc.scan_end(_try_post_processing=False)
         self.scanexfiltrator = None
-
+        return msg
+    
     def _acquire(self, status, i):
         #t1 = ttime.time()
         #t2 = t1 + self.acquire_time.get()
@@ -125,10 +134,10 @@ class TESBase(Device, RPCInterface):
         last_time = self.rpc.scan_point_start(val)['response']
         self.last_time = float(last_time)
         ttime.sleep(self.acquire_time.get())
-        self.rpc.scan_point_end()
+        msg = self.rpc.scan_point_end()
         #self.last_time = ttime.time()
         status.set_finished()
-        return
+        return msg
 
     @raiseOnFailure
     def take_noise(self, path=None, time=4):
@@ -158,11 +167,11 @@ class TESBase(Device, RPCInterface):
 
     def set_roi(self, label, llim, ulim):
         self.rois[label] = (llim, ulim)
-        self.rpc.roi_set({label: (llim, ulim)})
+        return self.rpc.roi_set({label: (llim, ulim)})
 
     def clear_roi(self, label):
         self.rois.pop(label)
-        self.rpc.roi_set({label: (None, None)})
+        return self.rpc.roi_set({label: (None, None)})
 
     def describe(self):
         d = super().describe()

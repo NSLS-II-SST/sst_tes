@@ -9,7 +9,8 @@ from os.path import join, relpath
 from .tes_signals import *
 from .rpc import RPCInterface
 from event_model import compose_resource
-from .tes import TESBase
+from .tes import TESBase, raiseOnFailure
+
 
 class TESROIBase(Device, RPCInterface):
     roi_lims = Component(RPCSignalPairAuto, method="roi", kind='config')
@@ -101,11 +102,17 @@ class TES(TESBase):
     def read(self):
         d = super().read()
         if self.write_off:
-            rois = self.rpc.roi_get_counts()['response']
-            for k in self.rois:
-                key = self.name + "_" + k
-                val = rois[k]
-                d[key] = {"value": val, "timestamp": self.last_time}
+            msg = self.rpc.roi_get_counts()
+            if msg['success']:
+                rois = msg['response']
+                for k in self.rois:
+                    key = self.name + "_" + k
+                    val = rois[k]
+                    d[key] = {"value": val, "timestamp": self.last_time}
+            else:
+                for k in self.rois:
+                    key = self.name + "_" + k
+                    d[key] = {"value": 0, "timestamp": self.last_time}
         return d
 
     def stage(self):
