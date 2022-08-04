@@ -97,10 +97,12 @@ class TESBase(Device, RPCInterface):
         scan_num = self.scan_num.get()
         sample_id = scaninfo.get("sample_id", -1)
         sample_name = scaninfo.get("sample_name", 'null')
-        start_energy = scaninfo.get("start_energy", -1)
+        # start_energy = scaninfo.get("start_energy", -1)
         routine = 'simulated_source'
-        if self.verbose: print(f"start calibration scan {scan_num}")
-        return self.rpc.calibration_start(var_name, var_unit, scan_num, sample_id, sample_name, routine)
+        if self.verbose:
+            print(f"start calibration scan {scan_num}")
+        return self.rpc.calibration_start(var_name, var_unit, scan_num,
+                                          sample_id, sample_name, routine)
 
     @raiseOnFailure
     def _scan_start(self):
@@ -113,7 +115,8 @@ class TESBase(Device, RPCInterface):
         sample_id = scaninfo.get("sample_id", -1)
         sample_name = scaninfo.get("sample_name", 'null')
         start_energy = scaninfo.get("start_energy", -1)
-        if self.verbose: print(f"start scan {scan_num}")
+        if self.verbose:
+            print(f"start scan {scan_num}")
         msg = self.rpc.scan_start(var_name, var_unit, sample_id, sample_name, extra={"start_energy": start_energy})
         return msg
 
@@ -122,10 +125,10 @@ class TESBase(Device, RPCInterface):
         msg = self.rpc.scan_end(_try_post_processing=False)
         self.scanexfiltrator = None
         return msg
-    
+
     def _acquire(self, status, i):
-        #t1 = ttime.time()
-        #t2 = t1 + self.acquire_time.get()
+        # t1 = ttime.time()
+        # t2 = t1 + self.acquire_time.get()
         if self.scanexfiltrator is not None:
             val = self.scanexfiltrator.get_scan_point_info()
         else:
@@ -135,7 +138,7 @@ class TESBase(Device, RPCInterface):
         self.last_time = float(last_time)
         ttime.sleep(self.acquire_time.get())
         msg = self.rpc.scan_point_end()
-        #self.last_time = ttime.time()
+        # self.last_time = ttime.time()
         status.set_finished()
         return msg
 
