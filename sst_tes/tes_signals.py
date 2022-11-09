@@ -53,7 +53,7 @@ class RPCSignal(RPCSignalPair):
     and behavior is controlled by whether or not a value is passed in
     """
     def __init__(self, *args, method, **kwargs):
-        print("Initializing", method)
+        # print("Initializing", method)
         super().__init__(*args, get_method=method, set_method=method, **kwargs)
         
         
