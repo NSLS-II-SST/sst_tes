@@ -49,6 +49,8 @@ class TESBase(Device, RPCInterface):
         self.write_off = True
         self.rois = {"tfy": (0, 1200)}
         self.last_time = 0
+        self.last_noise_file = None
+        self.last_projector_file = None
         self.path = path
         self.setFilenamePattern = True
         self.scanexfiltrator = None
@@ -147,7 +149,9 @@ class TESBase(Device, RPCInterface):
         self.rpc.set_noise_triggers()
         if path is None:
             path = self.path
-        self.rpc.file_start(path, write_ljh=True, write_off=False, setFilenamePattern=self.setFilenamePattern)
+        start_msg = self.rpc.file_start(path, write_ljh=True, write_off=False,
+                                        setFilenamePattern=self.setFilenamePattern)
+        self.last_noise_file = start_msg['response']
         ttime.sleep(time)
         msg = self._file_end()
         self.rpc.set_pulse_triggers()
@@ -158,9 +162,17 @@ class TESBase(Device, RPCInterface):
         self.rpc.set_pulse_triggers()
         if path is None:
             path = self.path
-        self.rpc.file_start(path, write_ljh=True, write_off=False, setFilenamePattern=self.setFilenamePattern)
+        start_msg = self.rpc.file_start(path, write_ljh=True, write_off=False,
+                                        setFilenamePattern=self.setFilenamePattern)
+        self.last_projector_file = start_msg['response']
         ttime.sleep(time)
         msg = self._file_end()
+        return msg
+
+    @raiseOnFailure
+    def make_projectors(self):
+        msg = self.rpc.make_projectors(self.last_noise_file,
+                                       self.last_projector_file)
         return msg
 
     @raiseOnFailure
