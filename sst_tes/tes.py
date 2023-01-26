@@ -39,7 +39,7 @@ class TESBase(Device, RPCInterface):
 
     def __init__(self, name, *args, verbose=False, path=None, **kwargs):
         super().__init__(*args, name=name, **kwargs)
-        self._hints = {}  # {'fields': ['tfy']}
+        self._hints = {'fields': [f'{name}_tfy']}
         self._log = {}
         self._completion_status = None
         self._save_roi = False
