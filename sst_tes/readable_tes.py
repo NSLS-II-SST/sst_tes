@@ -99,10 +99,12 @@ class TESROIext(TESROIBase):
 
 
 class TES(TESBase):
+    _fast_read = True
+    
     def read(self):
         d = super().read()
         if self.write_off:
-            msg = self.rpc.roi_get_counts()
+            msg = self.rpc.roi_get_counts(fast=self._fast_read)
             if msg['success']:
                 rois = msg['response']
                 for k in self.rois:

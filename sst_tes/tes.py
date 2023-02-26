@@ -56,6 +56,8 @@ class TESBase(Device, RPCInterface):
         self.scanexfiltrator = None
         self._commStatus = "Disconnected"
         self._connected = False
+        self._rsync_on_file_end = False
+        self._rsync_on_scan_end = False
 
     def _commCheck(self):
         try:
@@ -86,7 +88,7 @@ class TESBase(Device, RPCInterface):
 
     @raiseOnFailure
     def _file_end(self):
-        return self.rpc.file_end()
+        return self.rpc.file_end(_try_rsync_data=self._rsync_on_file_end)
 
     @raiseOnFailure
     def _calibration_start(self):
@@ -124,7 +126,7 @@ class TESBase(Device, RPCInterface):
 
     @raiseOnFailure
     def _scan_end(self):
-        msg = self.rpc.scan_end(_try_post_processing=False)
+        msg = self.rpc.scan_end(_try_post_processing=False, _try_rsync_data=self._rsync_on_scan_end)
         self.scanexfiltrator = None
         return msg
 
