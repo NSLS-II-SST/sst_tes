@@ -18,7 +18,7 @@ class ADR(Device, RPCInterface):
 class EPICS_ADR(Device):
     state = Component(EpicsSignalRO, ":STATE")
     t50mk = Component(EpicsSignalRO, ":TEMP", kind='hinted')
-    t50mk_sp = Component(EpicsSignal, ":TEMP_SP_RB", write_pv=":TEMP_SP")
+    t50mk_sp = Component(EpicsSignal, ":TEMP_SP_RB", write_pv=":TEMP_SP", put_complete=True)
     t1k = Component(EpicsSignalRO, ":ALT_TEMP")
     heater = Component(EpicsSignalRO, ":HEATER_OUT", kind='hinted')
     rms_uk = Component(EpicsSignalRO, ":TEMP_RMS_UK")
