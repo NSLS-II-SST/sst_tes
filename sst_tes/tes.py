@@ -190,19 +190,6 @@ class TESBase(Device, RPCInterface):
         self.rois.pop(label)
         return self.rpc.roi_set({label: (None, None)})
 
-    def describe(self):
-        d = super().describe()
-        if self.write_off:
-            for k in self.rois:
-                key = self.name + "_" + k
-                d[key] = {"dtype": "number", "shape": [], "source": key,
-                          "llim": self.rois[k][0], "ulim": self.rois[k][1]}
-        return d
-
-    @property
-    def hints(self):
-        return self._hints
-
     def trigger(self):
         if self.verbose:
             print("Triggering TES")
