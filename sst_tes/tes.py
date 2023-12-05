@@ -32,10 +32,11 @@ class TESBase(Device, RPCInterface):
     commStatus = Component(AttributeSignal, '_commStatus', kind=Kind.config)
     connected = Component(AttributeSignal, '_connected', kind=Kind.config)
     filename = Component(RPCSignal, method="filename", kind=Kind.config)
-    calibration = Component(RPCSignal, method='calibration_state', kind=Kind.config)
     state = Component(RPCSignal, method='state', kind=Kind.config)
     scan_num = Component(RPCSignal, method='scan_num', kind=Kind.config)
     scan_str = Component(RPCSignal, method='scan_str', kind=Kind.config)
+    scan_point_start = Component(AttributeSignal, '_scan_point_start', kind=Kind.normal)
+    scan_point_end = Component(AttributeSignal, '_scan_point_end', kind=Kind.normal)
 
     def __init__(self, name, *args, verbose=False, path=None, **kwargs):
         super().__init__(*args, name=name, **kwargs)
@@ -45,7 +46,7 @@ class TESBase(Device, RPCInterface):
         self._save_roi = False
         self.verbose = verbose
         self.file_mode = "continuous"  # Or "start_stop"
-        self.write_ljh = True
+        self.write_ljh = False
         self.write_off = True
         self.rois = {"tfy": (0, 1200)}
         self.last_time = 0
@@ -56,8 +57,8 @@ class TESBase(Device, RPCInterface):
         self.scanexfiltrator = None
         self._commStatus = "Disconnected"
         self._connected = False
-        self._rsync_on_file_end = False
-        self._rsync_on_scan_end = False
+        self._rsync_on_file_end = True
+        self._rsync_on_scan_end = True
 
     def _commCheck(self):
         try:
@@ -105,8 +106,8 @@ class TESBase(Device, RPCInterface):
         routine = 'simulated_source'
         if self.verbose:
             print(f"start calibration scan {scan_num}")
-        return self.rpc.calibration_start(var_name, var_unit, scan_num,
-                                          sample_id, sample_name, routine)
+        return self.rpc.calibration_start(var_name, var_unit,
+                                          sample_id, sample_name)
 
     @raiseOnFailure
     def _scan_start(self):
@@ -138,10 +139,13 @@ class TESBase(Device, RPCInterface):
         else:
             val = i
 
-        last_time = self.rpc.scan_point_start(val)['response']
-        self.last_time = float(last_time)
+        start_time = self.rpc.scan_point_start(val)['response']
+        self._scan_point_start = float(start_time)
+        self.last_time = float(start_time)
         ttime.sleep(self.acquire_time.get())
         msg = self.rpc.scan_point_end()
+        end_time = float(msg['response'])
+        self._scan_point_end = end_time
         # self.last_time = ttime.time()
         status.set_finished()
         return msg
