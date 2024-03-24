@@ -6,8 +6,11 @@ from sst_base.detectors.mca import EpicsMCABase
 class TESMCA(TESBase):
     mca = Cpt(EpicsMCABase, "XF:07ID-ES{UCAL:ROIS}:", name="mca")
 
-    def set_roi(self, label, llim, ulim):
-        self.mca.set_roi(label, llim, ulim)
+    def get_plot_hints(self):
+        return self.mca.get_plot_hints()
+
+    def set_roi(self, label, llim, ulim, plot=True):
+        self.mca.set_roi(label, llim, ulim, plot=plot)
 
     def clear_roi(self, label):
         self.mca.clear_roi(label)

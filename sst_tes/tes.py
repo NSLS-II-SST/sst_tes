@@ -38,8 +38,8 @@ class TESBase(Device, RPCInterface):
     scan_point_start = Component(AttributeSignal, '_scan_point_start', kind=Kind.normal)
     scan_point_end = Component(AttributeSignal, '_scan_point_end', kind=Kind.normal)
 
-    def __init__(self, name, *args, verbose=False, path=None, **kwargs):
-        super().__init__(*args, name=name, **kwargs)
+    def __init__(self, prefix, *, name, verbose=False, path=None, **kwargs):
+        super().__init__(prefix, name=name, **kwargs)
         self._hints = {'fields': [f'{name}_tfy']}
         self._log = {}
         self._completion_status = None
@@ -57,6 +57,8 @@ class TESBase(Device, RPCInterface):
         self.scanexfiltrator = None
         self._commStatus = "Disconnected"
         self._connected = False
+        self._scan_point_start = 0
+        self._scan_point_end = 0
         self._rsync_on_file_end = True
         self._rsync_on_scan_end = True
 
