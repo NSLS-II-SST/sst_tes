@@ -4,7 +4,7 @@ from .tes import TESBase
 from sst_base.detectors.mca import EpicsMCABase
 
 class TESMCA(TESBase):
-    mca = Cpt(EpicsMCABase, "XF:07ID-ES{UCAL:ROIS}:", name="mca")
+    mca = Cpt(EpicsMCABase, "AXSYS-TES{UCAL:ROIS}:", name="mca")
 
     def get_plot_hints(self):
         return self.mca.get_plot_hints()

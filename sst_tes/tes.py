@@ -53,14 +53,14 @@ class TESBase(Device, RPCInterface):
         self.last_noise_file = None
         self.last_projector_file = None
         self.path = path
-        self.setFilenamePattern = True
+        self.setFilenamePattern = False
         self.scanexfiltrator = None
         self._commStatus = "Disconnected"
         self._connected = False
         self._scan_point_start = 0
         self._scan_point_end = 0
-        self._rsync_on_file_end = True
-        self._rsync_on_scan_end = True
+        self._rsync_on_file_end = False
+        self._rsync_on_scan_end = False
 
     def _commCheck(self):
         try:
@@ -95,28 +95,33 @@ class TESBase(Device, RPCInterface):
 
     @raiseOnFailure
     def _calibration_start(self):
+        
         if self.scanexfiltrator is not None:
             scaninfo = self.scanexfiltrator.get_scan_start_info()
         else:
             scaninfo = {}
         var_name = scaninfo.get("motor", "unnamed_motor")
         var_unit = scaninfo.get("motor_unit", "index")
-        scan_num = self.scan_num.get()
+        
+        #scan_num = self.scan_num.get()
         sample_id = scaninfo.get("sample_id", -1)
         sample_name = scaninfo.get("sample_name", 'null')
         # start_energy = scaninfo.get("start_energy", -1)
-        routine = 'simulated_source'
-        if self.verbose:
-            print(f"start calibration scan {scan_num}")
+        #routine = 'simulated_source'
+        #if self.verbose:
+        #    print(f"start calibration scan {scan_num}")
         return self.rpc.calibration_start(var_name, var_unit,
                                           sample_id, sample_name)
-
+        # return self.rpc.calibration_start()
+    
     @raiseOnFailure
     def _scan_start(self):
+        
         if self.scanexfiltrator is not None:
             scaninfo = self.scanexfiltrator.get_scan_start_info()
         else:
             scaninfo = {}
+        
         var_name = scaninfo.get("motor", "unnamed_motor")
         var_unit = scaninfo.get("motor_unit", "index")
         sample_id = scaninfo.get("sample_id", -1)
@@ -125,22 +130,25 @@ class TESBase(Device, RPCInterface):
         if self.verbose:
             print(f"start scan {scan_num}")
         msg = self.rpc.scan_start(var_name, var_unit, sample_id, sample_name, extra={"start_energy": start_energy})
+        # msg = self.rpc.scan_start()
         return msg
 
     @raiseOnFailure
     def _scan_end(self):
         msg = self.rpc.scan_end(_try_post_processing=False, _try_rsync_data=self._rsync_on_scan_end)
-        self.scanexfiltrator = None
+        # self.scanexfiltrator = None
         return msg
 
     def _acquire(self, status, i):
         # t1 = ttime.time()
         # t2 = t1 + self.acquire_time.get()
+        """
         if self.scanexfiltrator is not None:
             val = self.scanexfiltrator.get_scan_point_info()
         else:
             val = i
-
+        """
+        val = i
         start_time = self.rpc.scan_point_start(val)['response']
         self._scan_point_start = float(start_time)
         self.last_time = float(start_time)
@@ -152,6 +160,7 @@ class TESBase(Device, RPCInterface):
         status.set_finished()
         return msg
 
+    """
     @raiseOnFailure
     def take_noise(self, path=None, time=4):
         self.rpc.set_noise_triggers()
@@ -182,7 +191,8 @@ class TESBase(Device, RPCInterface):
         msg = self.rpc.make_projectors(self.last_noise_file,
                                        self.last_projector_file)
         return msg
-
+    """
+    
     @raiseOnFailure
     def set_projectors(self):
         msg = self.rpc.set_projectors()
