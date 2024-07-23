@@ -55,3 +55,10 @@ class TESMCA(TESBase):
         self._log = {}
         self._data_index = None
         return super().unstage()
+
+
+def TESMCAFactory(prefix, *, name, **kwargs):
+    class CustomTESMCA(TESMCA):
+        mca = Cpt(EpicsMCABase, prefix, name="mca")
+
+    return CustomTESMCA("", name=name, **kwargs)

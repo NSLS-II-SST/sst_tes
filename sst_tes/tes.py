@@ -181,7 +181,7 @@ class TESBase(Device, RPCInterface):
     def _set_noise_triggers(self):
         msg = self.rpc.set_noise_triggers()
         return msg
-            
+
     @raiseOnFailure
     def take_projectors(self, path=None):
         self._set_pulse_triggers()

@@ -84,7 +84,7 @@ class ZMQREQClient(JSONClientBase):
         self.port = port
         self.addrstr = f"tcp://{address}:{port}"
         self.timeout = timeout
-        
+
     def sendrcv(self, method, *params, **kwargs):
         msg = self.formatMsg(method, *params, **kwargs)
         s = self.ctx.socket(zmq.REQ)
