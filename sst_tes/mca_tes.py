@@ -26,7 +26,7 @@ class TESMCA(TESBase):
         sts1 = super().trigger()
         sts2 = self.mca.trigger()
         return sts1 & sts2
-    
+
     def stage(self):
         if self.verbose:
             print("Staging TES")
