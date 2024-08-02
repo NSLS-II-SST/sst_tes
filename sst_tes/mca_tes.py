@@ -1,7 +1,8 @@
-from ophyd import DeviceStatus, Component as Cpt
+from ophyd import DeviceStatus, Component as Cpt, FormattedComponent as FCpt
 import itertools
 from .tes import TESBase
 from sst_base.detectors.mca import EpicsMCABase
+
 
 class TESMCA(TESBase):
     mca = Cpt(EpicsMCABase, "XF:07ID-ES{UCAL:ROIS}:", name="mca")
@@ -48,7 +49,8 @@ class TESMCA(TESBase):
         return super().stage()
 
     def unstage(self):
-        if self.verbose: print("Complete acquisition of TES")
+        if self.verbose:
+            print("Complete acquisition of TES")
         self._scan_end()
         if self.file_mode == "start_stop":
             self._file_end()
@@ -57,8 +59,8 @@ class TESMCA(TESBase):
         return super().unstage()
 
 
-def TESMCAFactory(prefix, *, name, **kwargs):
+def TESMCAFactory(prefix, *, mcaPrefix, name, **kwargs):
     class CustomTESMCA(TESMCA):
-        mca = Cpt(EpicsMCABase, prefix, name="mca")
+        mca = FCpt(EpicsMCABase, mcaPrefix, name="mca")
 
-    return CustomTESMCA("", name=name, **kwargs)
+    return CustomTESMCA(prefix, name=name, **kwargs)
