@@ -43,7 +43,7 @@ class TESBase(Device, RPCInterface):
     cal_flag = FCpt(AttributeSignal, "_cal_flag", kind=Kind.config)  # PCASpy
     acquire_time = FCpt(AttributeSignal, "_acquire_time", kind=Kind.config)  # TESMCA?
     commStatus = FCpt(AttributeSignal, "_commStatus", kind=Kind.config)  # PCASpy
-    connected = FCpt(AttributeSignal, "_connected", kind=Kind.config)  # PCASpy
+    connected = Cpt(EpicsSignal, "CONNECTED", kind=Kind.config)
     noise_uid = Cpt(EpicsSignal, "NOISE_UID", string=True, kind=Kind.config)
     projector_uid = Cpt(EpicsSignal, "PROJECTOR_UID", string=True, kind=Kind.config)
     filename = Cpt(EpicsSignal, "FILENAME", string=True, kind=Kind.config)
@@ -52,18 +52,14 @@ class TESBase(Device, RPCInterface):
     scan_str = Cpt(EpicsSignal, "SCAN_STR", string=True, kind=Kind.config)
     scan_point_start = Cpt(
         AttributeSignal, "_scan_point_start", kind=Kind.normal, add_prefix=()
-    )  # PCASpy
-    scan_point_end = FCpt(
-        AttributeSignal, "_scan_point_end", kind=Kind.normal
-    )  # PCASpy
+    )
+    scan_point_end = Cpt(
+        AttributeSignal, "_scan_point_end", kind=Kind.normal, add_prefix=()
+    )
     rsync_on_file_end = Cpt(EpicsSignal, "RSYNC_ON_FILE_END", kind=Kind.config)
     rsync_on_scan_end = Cpt(EpicsSignal, "RSYNC_ON_SCAN_END", kind=Kind.config)
-    write_ljh = Cpt(
-        EpicsSignal, "WRITE_LJH", kind=Kind.config
-    )  # New EpicsSignal for write_ljh
-    write_off = Cpt(
-        EpicsSignal, "WRITE_OFF", kind=Kind.config
-    )  # New EpicsSignal for write_off
+    write_ljh = Cpt(EpicsSignal, "WRITE_LJH", kind=Kind.config)
+    write_off = Cpt(EpicsSignal, "WRITE_OFF", kind=Kind.config)
 
     def __init__(
         self,
