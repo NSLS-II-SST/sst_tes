@@ -41,11 +41,19 @@ class TESBase(Device, RPCInterface):
     In this concept we require Caproto MCA or no data at all
     """
     cal_flag = FCpt(AttributeSignal, "_cal_flag", kind=Kind.config)  # PCASpy
+    status = Cpt(EpicsSignal, "STATUS", kind=Kind.config)
     acquire_time = FCpt(AttributeSignal, "_acquire_time", kind=Kind.config)  # TESMCA?
     commStatus = FCpt(AttributeSignal, "_commStatus", kind=Kind.config)  # PCASpy
     connected = Cpt(EpicsSignal, "CONNECTED", kind=Kind.config)
+    running = Cpt(EpicsSignal, "RUNNING", kind=Kind.config)
     noise_uid = Cpt(EpicsSignal, "NOISE_UID", string=True, kind=Kind.config)
     projector_uid = Cpt(EpicsSignal, "PROJECTOR_UID", string=True, kind=Kind.config)
+    noise_filename = Cpt(EpicsSignal, "NOISE_FILE", string=True, kind=Kind.config)
+    projector_filename = Cpt(
+        EpicsSignal, "PROJECTOR_FILE", string=True, kind=Kind.config
+    )
+    projectors_loaded = Cpt(EpicsSignal, "PROJECTORS", kind=Kind.config)
+    calibration_uid = Cpt(EpicsSignal, "CALIBRATION_UID", string=True, kind=Kind.config)
     filename = Cpt(EpicsSignal, "FILENAME", string=True, kind=Kind.config)
     state = Cpt(EpicsSignal, "STATE", string=True, kind=Kind.config)
     scan_num = Cpt(EpicsSignal, "SCAN_NUM", kind=Kind.config)
@@ -152,8 +160,7 @@ class TESBase(Device, RPCInterface):
         sample_id = scaninfo.get("sample_id", -1)
         sample_name = scaninfo.get("sample_name", "null")
         start_energy = scaninfo.get("start_energy", -1)
-        if self.verbose:
-            print(f"start scan {scan_num}")
+
         msg = self.rpc.scan_start(
             var_name,
             var_unit,
@@ -200,7 +207,9 @@ class TESBase(Device, RPCInterface):
             write_off=False,
             setFilenamePattern=self.setFilenamePattern,
         )
-        self._last_noise_file = start_msg["response"]
+        noise_file = start_msg["response"]
+        self.noise_filename.set(noise_file).wait()
+        self._last_noise_file = noise_file
         return start_msg
 
     @raiseOnFailure
@@ -225,17 +234,16 @@ class TESBase(Device, RPCInterface):
             write_off=False,
             setFilenamePattern=self.setFilenamePattern,
         )
-        self._last_projector_file = start_msg["response"]
+        projector_file = start_msg["response"]
+        self.projector_filename.set(projector_file).wait()
+        self._last_projector_file = projector_file
         return start_msg
-        """
-        ttime.sleep(time)
-        msg = self._file_end()
-        return msg
-        """
 
     @raiseOnFailure
     def make_projectors(self):
-        msg = self.rpc.make_projectors(self._last_noise_file, self._last_projector_file)
+        noise_file = self.noise_filename.get()
+        projector_file = self.projector_filename.get()
+        msg = self.rpc.make_projectors(noise_file, projector_file)
         return msg
 
     @raiseOnFailure
