@@ -60,7 +60,8 @@ class TESMCA(TESBase):
 
 
 def TESMCAFactory(prefix, *, mcaPrefix, name, **kwargs):
+    mcaPrefixEscaped = mcaPrefix.replace('{', '{{').replace('}', '}}')
     class CustomTESMCA(TESMCA):
-        mca = FCpt(EpicsMCABase, mcaPrefix, name="mca")
+        mca = FCpt(EpicsMCABase, mcaPrefixEscaped, name="mca")
 
     return CustomTESMCA(prefix, name=name, **kwargs)

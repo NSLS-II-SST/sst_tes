@@ -58,10 +58,10 @@ class TESBase(Device, RPCInterface):
     state = Cpt(EpicsSignal, "STATE", string=True, kind=Kind.config)
     scan_num = Cpt(EpicsSignal, "SCAN_NUM", kind=Kind.config)
     scan_str = Cpt(EpicsSignal, "SCAN_STR", string=True, kind=Kind.config)
-    scan_point_start = Cpt(
+    scan_point_start = FCpt(
         AttributeSignal, "_scan_point_start", kind=Kind.normal, add_prefix=()
     )
-    scan_point_end = Cpt(
+    scan_point_end = FCpt(
         AttributeSignal, "_scan_point_end", kind=Kind.normal, add_prefix=()
     )
     rsync_on_file_end = Cpt(EpicsSignal, "RSYNC_ON_FILE_END", kind=Kind.config)
@@ -176,6 +176,18 @@ class TESBase(Device, RPCInterface):
         self.scanexfiltrator = None
         return msg
 
+    @property
+    def path(self):
+        if hasattr(self, "_dynamic_path"):
+            path = self._dynamic_path()
+        else:
+            path = self._path
+        return path
+
+    @path.setter
+    def path(self, path):
+        self._path = path
+        
     def _acquire(self, status, i):
         # t1 = ttime.time()
         # t2 = t1 + self.acquire_time.get()
