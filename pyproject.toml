@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://github.com/xraygui/sst_tes"
+homepage = "https://github.com/nsls-ii-sst/sst_tes"
 
 [tool.setuptools]
 packages = ["sst_tes"]
