@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sst_tes"
+authors = [
+    {name = "Charles Titus", email = "charles.titus@nist.gov"},
+]
+description = "TES (Transition Edge Sensor) package for SST"
+dynamic = ["version"]
+dependencies = [
+    "ophyd",
+    "numpy",
+    "zmq",
+    "event-model",
+]
+
+[project.urls]
+homepage = "https://github.com/nsls-ii-sst/sst_tes"
+
+[tool.setuptools]
+packages = ["sst_tes"]
+
+[tool.setuptools_scm]
+
+[project.entry-points."databroker.handlers"]
+tes = "sst_tes.handlers:SimpleHandler"
+tessim = "sst_tes.handlers:FakeHandler"
