@@ -12,7 +12,7 @@ dynamic = ["version"]
 dependencies = [
     "ophyd",
     "numpy",
-    "zmq",
+    "pyzmq",
     "event-model",
 ]
 
